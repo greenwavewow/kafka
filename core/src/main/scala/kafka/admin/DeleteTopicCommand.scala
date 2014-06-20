@@ -23,7 +23,7 @@ import kafka.utils.{Utils, ZKStringSerializer, ZkUtils}
 
 object DeleteTopicCommand {
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): String = {
     val parser = new OptionParser
     val topicOpt = parser.accepts("topic", "REQUIRED: The topic to be deleted.")
                          .withRequiredArg
@@ -44,23 +44,23 @@ object DeleteTopicCommand {
         System.exit(1)
       }
     }
-
+    var s=""
     val topic = options.valueOf(topicOpt)
     val zkConnect = options.valueOf(zkConnectOpt)
     var zkClient: ZkClient = null
     try {
       zkClient = new ZkClient(zkConnect, 30000, 30000, ZKStringSerializer)
       zkClient.deleteRecursive(ZkUtils.getTopicPath(topic))
-      println("deletion succeeded!")
+      s= "deletion succeeded!"
     }
     catch {
-      case e: Throwable =>
-        println("delection failed because of " + e.getMessage)
-        println(Utils.stackTrace(e))
+      case e =>
+        s= "delection failed because of " + e.getMessage+ "________"+ Utils.stackTrace(e)
     }
     finally {
       if (zkClient != null)
         zkClient.close()
     }
+    return s
   }
 }
